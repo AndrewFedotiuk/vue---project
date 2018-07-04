@@ -11,7 +11,7 @@
             :key="item.id"
           >
             <div class="car-item">
-              <v-btn class="error" to="'/item/' + item.id">{{item.title}}</v-btn>
+              <v-btn class="error" :to="'/Add/' + item.id">{{item.title}}</v-btn>
             </div>
           </v-carousel-item>
         </v-carousel>
@@ -42,7 +42,7 @@
           </v-card-title>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn flat>Open</v-btn>
+            <v-btn flat :to="'/Add/' + item.id">Open</v-btn>
             <v-btn reised class="primary">Buy</v-btn>
           </v-card-actions>
         </v-card>
