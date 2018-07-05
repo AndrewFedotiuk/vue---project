@@ -35,6 +35,7 @@
         <v-layout row>
           <v-flex xs12 sm6>
             <v-switch
+              color="primary"
               label="Add to promo"
               v-model="promo"
             ></v-switch>
@@ -68,7 +69,18 @@
     },
     methods: {
       createAd () {
+        if (this.$refs.form.validate()) {
 
+          const ad = {
+            title: this.title,
+            promo: this.promo,
+            description: this.description,
+            src: 'https://sabe.io/tutorials/getting-started-with-vue-js/hero.png'
+          }
+
+          this.$store.dispatch('createAd', ad)
+
+        }
       }
     }
   }

@@ -18,7 +18,8 @@ export default new Router({
       component: Home
     },
     {
-      path: '/add/:id',
+      path: '/Add/:id',
+      props: true,
       name: 'add',
       component: Add
     },
