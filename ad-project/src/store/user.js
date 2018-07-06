@@ -7,7 +7,7 @@ class User {
 }
 
 export default {
-  store: {
+  state: {
     user: null
   
   },
@@ -44,11 +44,21 @@ export default {
         commit('setError', error.message)
         throw error
       }
+    },
+    autoLoginUser({commit}, user){
+      commit('setUser', new User(user.uid))
+    },
+    logoutUser({commit}){
+      fb.auth().signOut()
+      commit('setUser', null)
     }
   },
   getters:{
     user(state){
       return state.user
+    },
+    isUserLoggetIn(state){
+      return !!state.user;
     }
   
   }

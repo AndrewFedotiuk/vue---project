@@ -1,45 +1,87 @@
+import * as fb from 'firebase'
+
+class Add {
+  constructor(title, description, ownerId, src='', promo=false, id=null){
+    this.title = title;
+    this.description = description;
+    this.ownerId = ownerId;
+    this.src = src;
+    this.promo = promo;
+    this.id = id;
+  }
+}
+
 export default {
   state: {
-    ads: [
-      {
-        title: 'First title',
-        description: 'hello i am description',
-        promo: false,
-        src: 'http://bipbap.ru/wp-content/uploads/2017/09/Cool-High-Resolution-Wallpaper-1920x1080.jpg',
-        id: '100'
-      },
-      {
-        title: 'Second title',
-        description: 'hello i am description',
-        promo: true,
-        src: 'https://static.tumblr.com/c9a8fff286f068e0f951ca01aea3b4a2/lquyijk/58snseviz/tumblr_static_tumblr_static_filename_640.jpg',
-        id: '101'
-      },
-      {
-        title: 'Third title',
-        description: 'hello i am description',
-        promo: false,
-        src: 'https://www.look.com.ua/large/201210/53782.jpg',
-        id: '102'
-      },
-      {
-        title: 'Four title',
-        description: 'hello i am description',
-        promo: true,
-        src: 'http://minionomaniya.ru/wp-content/uploads/2016/01/%D0%BC%D0%B8%D0%BD%D1%8C%D0%BE%D0%BD%D1%8B-%D0%BF%D1%80%D0%B8%D0%BA%D0%BE%D0%BB%D1%8B-%D0%BA%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D0%BA%D0%B8.jpg',
-        id: '103'
-      }
-    ]
+    ads: []
   },
   mutations: {
     createAd(state, payload){
         state.ads.push(payload)
+    },
+    loadAds(state, payload){
+      state.ads = payload
     }
   },
   actions: {
-    createAd({commit}, payload){
-        payload.id = 'ioewrui'
-      commit('createAd', payload)
+    async createAd({commit, getters}, payload){
+      commit('clearError')
+      commit('setLoading', true)
+      
+      try {
+        const newAd = new Add(
+          payload.title,
+          payload.description,
+          getters.user.id,
+          payload.src,
+          payload.promo
+        )
+  
+        const ad = await fb.database().ref('ads').push(newAd)
+  
+        commit('setLoading', false)
+  
+        commit('createAd',{
+          ...newAd,
+            id: ad.key
+        })
+        
+      }catch (error) {
+        commit('setError', error.message)
+        commit('setLoading', false)
+        throw error
+      }
+    },
+    async fetchAds({commit}){
+      commit('clearError')
+      commit('setLoading', true)
+      
+      
+      const resoultAds = []
+      
+      try {
+            const fbVal = await fb.database().ref('ads').once('value')
+        const ads = fbVal.val()
+        Object.keys(ads).forEach(key=>{
+          const ad = ads[key]
+          resoultAds.push(
+            new Add(ad.title, ad.description, ad.ownerId, ad.src, ad.promo, key)
+          )
+        
+        })
+        
+        
+        commit('loadAds', resoultAds)
+  
+  
+        commit('setLoading', false)
+      }
+      catch (error) {
+        commit('setError', error.message)
+        commit('setLoading', false)
+        throw error
+      }
+    
     }
   },
   getters: {
