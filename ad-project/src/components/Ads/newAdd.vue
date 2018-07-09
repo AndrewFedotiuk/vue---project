@@ -22,14 +22,21 @@
 
           ></v-text-field>
 
-          <v-btn class="warning">
+          <v-btn class="warning" @click="triggerUpload">
             Upload
             <v-icon right dark>cloud_upload</v-icon>
+            <input
+              ref="fileInput"
+              type="file"
+              style="display: none"
+              accept="image/*"
+              @change="onFileChange"
+            >
           </v-btn>
         </v-form>
         <v-layout row>
           <v-flex xs12 sm6>
-            <img src="" height="150">
+            <img :src="imageSrc" height="150" v-if="imageSrc">
           </v-flex>
         </v-layout>
         <v-layout row>
@@ -46,7 +53,7 @@
             <v-spacer></v-spacer>
             <v-btn
               :loading="loading"
-              :disabled="!valid || loading"
+              :disabled="!valid || !image || loading"
               class="success"
               @click="createAd"
             >Create Add</v-btn>
@@ -65,7 +72,9 @@
         title: '',
         description: '',
         promo: false,
-        valid: false
+        valid: false,
+        image: null,
+        imageSrc: ''
       }
     },
     computed:{
@@ -75,13 +84,13 @@
     },
     methods: {
       createAd () {
-        if (this.$refs.form.validate()) {
+        if (this.$refs.form.validate() && this.imageSrc){
 
           const ad = {
             title: this.title,
             promo: this.promo,
             description: this.description,
-            src: 'https://sabe.io/tutorials/getting-started-with-vue-js/hero.png'
+            image: this.image
           }
 
           this.$store.dispatch('createAd', ad)
@@ -91,6 +100,20 @@
             .catch(()=>{})
 
         }
+      },
+      triggerUpload(){
+        this.$refs.fileInput.click()
+      },
+      onFileChange(event){
+        const file = event.target.files[0]
+        const reader = new FileReader()
+
+        reader.onload = e =>{
+          this.imageSrc = reader.result
+        }
+
+        reader.readAsDataURL(file)
+        this.image = file
       }
     }
   }

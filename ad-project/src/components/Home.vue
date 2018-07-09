@@ -7,7 +7,7 @@
         <v-carousel>
           <v-carousel-item
             v-for="item in promo"
-            :src="item.src"
+            :src="item.imageSrc"
             :key="item.id"
           >
             <div class="car-item">
@@ -30,7 +30,7 @@
       >
         <v-card>
           <v-card-media src="/static/doc-images/cards/desert.jpg"
-                        :src="item.src"
+                        :src="item.imageSrc"
                         height="200px"
           >
           </v-card-media>

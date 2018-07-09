@@ -11,7 +11,7 @@
           <v-layout row>
             <v-flex xs4>
               <v-card-media
-                :src="item.src"
+                :src="item.imageSrc"
                 height="155px"
               ></v-card-media>
             </v-flex>

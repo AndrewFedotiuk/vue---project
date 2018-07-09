@@ -1,11 +1,11 @@
 import * as fb from 'firebase'
 
 class Add {
-  constructor(title, description, ownerId, src='', promo=false, id=null){
+  constructor(title, description, ownerId, imageSrc='', promo=false, id=null){
     this.title = title;
     this.description = description;
     this.ownerId = ownerId;
-    this.src = src;
+    this.imageSrc = imageSrc;
     this.promo = promo;
     this.id = id;
   }
@@ -28,27 +28,45 @@ export default {
       commit('clearError')
       commit('setLoading', true)
       
+      const image = payload.image
+      
       try {
+        let link;
         const newAd = new Add(
           payload.title,
           payload.description,
           getters.user.id,
-          payload.src,
+          '',
           payload.promo
         )
   
         const ad = await fb.database().ref('ads').push(newAd)
+        
+        const imageExt = image.name.slice(image.name.lastIndexOf('.'))
+        const imageX = `ads/${ad.key}.${imageExt}`
+     
+        const fileData = await fb.storage().ref(imageX).put(image)
+        await fileData.ref.getDownloadURL().then(imageSrc=>{
+             fb.database().ref('ads').child(ad.key).update({
+               imageSrc
+           })
+          link = imageSrc;
+        })
+        
+        
   
         commit('setLoading', false)
   
         commit('createAd',{
           ...newAd,
-            id: ad.key
+            id: ad.key,
+            imageSrc: link
         })
         
       }catch (error) {
         commit('setError', error.message)
         commit('setLoading', false)
+        console.log(error);
         throw error
       }
     },
@@ -65,7 +83,7 @@ export default {
         Object.keys(ads).forEach(key=>{
           const ad = ads[key]
           resoultAds.push(
-            new Add(ad.title, ad.description, ad.ownerId, ad.src, ad.promo, key)
+            new Add(ad.title, ad.description, ad.ownerId, ad.imageSrc, ad.promo, key)
           )
         
         })
